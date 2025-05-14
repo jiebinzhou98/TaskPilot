@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { generateRandomNickName } from '@/lib/nickname'; 
 
 export default function DashboardPage() {
   const router = useRouter();

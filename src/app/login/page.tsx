@@ -1,22 +1,35 @@
 'use client'
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react";
+import { generateRandomNickName } from "@/lib/nickname";
+
 
 export default function LoginPage() {
     const router = useRouter();
 
     const handleGuestLogin = async () => {
         try {
-            await signInAnonymously(auth);
+            const res = await signInAnonymously(auth);
+            const user = res.user;
+
+            const userRef = doc(db, "users", user.uid)
+            const snapshot = await getDoc(userRef)
+
+            if(!snapshot.exists()){
+                const nickname = generateRandomNickName();
+                await setDoc(userRef, {nickname})
+            }
+
         } catch (error) {
             console.log(error)
         }
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, user => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
             if(user){
                 router.push('/dashboard');
             }
