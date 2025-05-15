@@ -1,86 +1,117 @@
-'use client'
+'use client';
 
-import { useEffect, useState, FormEvent } from 'react'
-import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, FormEvent } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
-interface Task{
-    id: number,
-    title: string;
+interface Task {
+  id: number;
+  title: string;
 }
 
-export default function DashboardPage(){
-    const router = useRouter();
-    const [userId, setUserId] = useState<string | null>(null)
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [taskInput, setTaskInput] = useState('');
+export default function DashboardPage() {
+  const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [taskInput, setTaskInput] = useState('');
 
-    useEffect(() => {
-        const fetchUser = async () =>{
-            const {data, error} = await supabase.auth.getUser();
+  const fetchTasks = async (uid: string) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', uid)
+      .order('created_at', { ascending: false });
 
-            if(error || !data.user){
-                router.push('/login');
-            }else{
-                setUserId(data.user.id);
-                fetchTasks(data.user.id)
-            }
-        };
-        fetchUser();
-    },[router]);
+    if (error) {
+      console.error('❌ Failed to load tasks:', error.message);
+    } else {
+      setTasks(data || []);
+    }
+  };
 
-    const fetchTasks = async (uid: string) => {
-        const {data, error} = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id',uid)
-        .order('created_at',{ascending:false});
+  useEffect(() => {
+    const fetchUserAndTasks = async () => {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
-        if(!error && data){
-            setTasks(data);
-        }
+      if (userError || !userData.user) {
+        router.push('/login');
+        return;
+      }
+
+      const uid = userData.user.id;
+      setUserId(uid);
+      await fetchTasks(uid);
     };
 
-    const handleAddTask = async (e: FormEvent) => {
-        e.preventDefault();
-        if(!taskInput.trim() || !userId) return;
+    fetchUserAndTasks();
+  }, [router]);
 
-        const {error} = await supabase.from('tasks').insert({
-            title:taskInput.trim(),
-            user_id: userId,
-        });
+  const handleAddTask = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!taskInput.trim() || !userId) return;
 
-        if(!error){
-            setTaskInput(''),
-            fetchTasks(userId);
-        }
-    };
+    const { error } = await supabase.from('tasks').insert({
+      title: taskInput.trim(),
+      user_id: userId,
+    });
 
-    return(
-        <main className='min-h-screen bg-gray-100 p-8'>
-            <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
-                <h1 className='text-3xl font-bold mb-4'>🔥 TaskPilot Dashboard
-                    <form onSubmit={handleAddTask} className='flex gap-2 mb-6'>
-                        <input type='text' 
-                                placeholder='Enter a new task...'
-                                value={taskInput}
-                                onChange={(e) => setTaskInput(e.target.value)} 
-                                className='flex-1 border px-3 rounded'
-                        />
-                        <button type='submit'
-                                className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>
-                                Add Task
-                        </button>
-                    </form>
-                    <ul className='space-y-2'> 
-                        {tasks.map((task)=>(
-                            <li key={task.id} className='p-3 bg-gray-50 border rounded'>
-                                {task.title}
-                            </li>
-                        ))}
-                    </ul>
-                </h1>
-            </div>
-        </main>
-    )
+    if (error) {
+      console.error('❌ Failed to add task:', error.message);
+    } else {
+      setTaskInput('');
+      await fetchTasks(userId); 
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    const {error} = await supabase.from('tasks').delete().eq('id',taskId);
+    if(error){
+        console.error('Failed to delete task:',error.message);
+    }else if(userId){
+        await fetchTasks(userId)
+    }
+  };
+
+  return (
+    <main className='min-h-screen bg-gray-100 p-8'>
+      <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
+        <h1 className='text-3xl font-bold mb-4'>🔥 TaskPilot Dashboard</h1>
+
+        <form onSubmit={handleAddTask} className='flex gap-2 mb-6'>
+          <input
+            type='text'
+            placeholder='Enter a new task...'
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            className='flex-1 border px-3 py-2 rounded'
+          />
+          <button
+            type='submit'
+            className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+          >
+            Add Task
+          </button>
+        </form>
+
+        {tasks.length === 0 ? (
+          <p className='text-gray-500 italic'>No tasks yet. Start by adding one!</p>
+        ) : (
+          <ul className='space-y-2'>
+            {tasks.map((task) => (
+              <li
+                key={task.id}
+                className='p-3 bg-gray-50 border rounded flex justify-between items-center'
+              >
+                <span>{task.title}</span>
+                <button onClick={()=>handleDeleteTask(task.id)} 
+                    className='text-red-500 hover:text-red-700 text-s'>
+                        🗑 Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </main>
+  );
 }
