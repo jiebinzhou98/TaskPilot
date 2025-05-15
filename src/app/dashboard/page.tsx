@@ -18,6 +18,9 @@ export default function DashboardPage() {
     const [nickname, setNickname] = useState<string | null>(null);
     const [editTaskId, setEditTaskId] = useState<number | null>(null);
     const [editTitle, setEditTitle] = useState('');
+    
+    type Filter = 'all' | 'completed' | 'incomplete';
+    const [filter, setFilter] = useState<Filter>('all')
 
     const fetchTasks = async (uid: string) => {
         const { data, error } = await supabase
@@ -124,6 +127,12 @@ export default function DashboardPage() {
         setEditTitle('');
     }
 
+    const filteredTasks = tasks.filter((task) => {
+        if(filter === 'completed') return task.completed;
+        if(filter === 'incomplete') return !task.completed;
+        return true;
+    })
+
     return (
         <main className='min-h-screen bg-gray-100 p-8'>
             <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
@@ -157,12 +166,29 @@ export default function DashboardPage() {
                         Add Task
                     </button>
                 </form>
+                
+                <div className='mb-4 flex gap-2'>
+                    {(['all','completed','incomplete'] as Filter[]).map((f) => (
+                        <button
+                            key={f}
+                            onClick={() => setFilter(f)}
+                            className={`px-3 py-1 rounded text-sm border ${filter === f
+                                ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+                            }`}
+                        >
+                            {f === 'all' && 'All'}
+                            {f === 'completed' && 'Completed'}
+                            {f === 'incomplete' && 'Incomplete'}
+                        </button>
+                    ))}
+                </div>
+
 
                 {tasks.length === 0 ? (
                     <p className='text-gray-500 italic'>No tasks yet. Start by adding one!</p>
                 ) : (
                     <ul className='space-y-2'>
-                        {tasks.map((task) => (
+                        {filteredTasks.map((task) => (
                             <li
                                 key={task.id}
                                 className='p-3 bg-gray-50 border rounded flex justify-between items-center'
