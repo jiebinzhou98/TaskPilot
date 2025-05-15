@@ -1,92 +1,86 @@
-// 'use client';
+'use client'
 
-// import { useEffect, useState, FormEvent } from 'react';
-// import { onAuthStateChanged } from 'firebase/auth';
-// import { collection, addDoc, getDocs, query, where, Timestamp, doc } from 'firebase/firestore';
-// import { auth, db } from '@/lib/firebase';
-// import { useRouter } from 'next/navigation';
+import { useEffect, useState, FormEvent } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
-// export default function DashboardPage() {
-//   const router = useRouter();
-//   const [uid, setUid] = useState<string | null>(null);
-//   const [taskInput, setTaskInput] = useState('');
-//   const [tasks, setTasks] = useState<{ id: string, title: string}[]>([]);
+interface Task{
+    id: number,
+    title: string;
+}
 
-//   useEffect(() => {
-//     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-//       if (user) {
-//         setUid(user.uid);
-//         await fetchTasks(user.uid);
-//       } else {
-//         router.push('/login');
-//       }
-//     });
-//     return () => unsubscribe();
-//   }, [router]);
+export default function DashboardPage(){
+    const router = useRouter();
+    const [userId, setUserId] = useState<string | null>(null)
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [taskInput, setTaskInput] = useState('');
 
-//   const fetchTasks = async (uid: string) => {
-//     const q = query(
-//         collection(db, 'tasks'),
-//         where('uid', '==', uid)
-//     );
-//     const querySnapshot = await getDocs(q);
-//     const fetchTasks = querySnapshot.docs.map((doc) => ({
-//         id: doc.id,
-//         title: doc.data().title,
-//     }));
-//     setTasks(fetchTasks);
-//   }
+    useEffect(() => {
+        const fetchUser = async () =>{
+            const {data, error} = await supabase.auth.getUser();
 
-//   const handleAddTask = async (e: FormEvent) => {
-//     e.preventDefault();
-//     if(!taskInput.trim() || !uid) return;
+            if(error || !data.user){
+                router.push('/login');
+            }else{
+                setUserId(data.user.id);
+                fetchTasks(data.user.id)
+            }
+        };
+        fetchUser();
+    },[router]);
 
-//     await addDoc(collection(db, 'tasks'),{
-//         title: taskInput.trim(),
-//         createdAt: Timestamp.now(),
-//         uid: uid,
-//     }).catch((err)=>{
-//         console.error(err)
-//     })
+    const fetchTasks = async (uid: string) => {
+        const {data, error} = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id',uid)
+        .order('created_at',{ascending:false});
 
-//     setTaskInput(''),
-//     await fetchTasks(uid);
-//   }
+        if(!error && data){
+            setTasks(data);
+        }
+    };
 
-//   return (
-//     <main className="min-h-screen bg-gray-100 p-8">
-//         <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
-//             <h1 className='text-3xl font-bold mb-4'>🔥Welcome to TaskPilot🔥</h1>
-//             <p className='text-gray-700 mb-2'>Login As Anonymous</p>
-//             <p className='text-sm text-gray-500 break-all'>User: <span className='font-mono'>{uid}</span></p>
-            
-//             <div className='mt-8 border-t pt-4 text-gray-400 italic'>
-//                 You dont have any tasks yet, Click to begin!
-//             </div>
+    const handleAddTask = async (e: FormEvent) => {
+        e.preventDefault();
+        if(!taskInput.trim() || !userId) return;
 
-//             <form onSubmit={handleAddTask} className='flex gap-2 my-4'>
-//                 <input 
-//                 type='text'
-//                 value={taskInput}
-//                 onChange={(e)=> setTaskInput(e.target.value)}
-//                 placeholder='Enter a new task...'
-//                 className='flex-1 border px-3 py-2 rounded'
-//                 />
-//                 <button type='submit'
-//                 className='bg-green-500 text-white px-4 py-2 rounded hover:bg-blue-600'>
-//                     Add Task
-//                 </button>
-//             </form>
+        const {error} = await supabase.from('tasks').insert({
+            title:taskInput.trim(),
+            user_id: userId,
+        });
 
-//             <ul className='space-y-2'>
-//                 {tasks.map((task) => (
-//                     <li key={task.id}
-//                     className='p-3 bg-gray-50 border rounded shadow-sm'>
-//                         {task.title}
-//                     </li>
-//                 ))}
-//             </ul>
-//         </div>
-//     </main>
-//   );
-// }
+        if(!error){
+            setTaskInput(''),
+            fetchTasks(userId);
+        }
+    };
+
+    return(
+        <main className='min-h-screen bg-gray-100 p-8'>
+            <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
+                <h1 className='text-3xl font-bold mb-4'>🔥 TaskPilot Dashboard
+                    <form onSubmit={handleAddTask} className='flex gap-2 mb-6'>
+                        <input type='text' 
+                                placeholder='Enter a new task...'
+                                value={taskInput}
+                                onChange={(e) => setTaskInput(e.target.value)} 
+                                className='flex-1 border px-3 rounded'
+                        />
+                        <button type='submit'
+                                className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>
+                                Add Task
+                        </button>
+                    </form>
+                    <ul className='space-y-2'> 
+                        {tasks.map((task)=>(
+                            <li key={task.id} className='p-3 bg-gray-50 border rounded'>
+                                {task.title}
+                            </li>
+                        ))}
+                    </ul>
+                </h1>
+            </div>
+        </main>
+    )
+}
