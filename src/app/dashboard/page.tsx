@@ -16,6 +16,8 @@ export default function DashboardPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskInput, setTaskInput] = useState('');
     const [nickname, setNickname] = useState<string | null>(null);
+    const [editTaskId, setEditTaskId] = useState<number | null>(null);
+    const [editTitle, setEditTitle] = useState('');
 
     const fetchTasks = async (uid: string) => {
         const { data, error } = await supabase
@@ -100,6 +102,28 @@ export default function DashboardPage() {
         }
     }
 
+    const handleConfirmEdit = async (taskId: number) => {
+        if (!editTitle.trim()) return;
+
+        const { error } = await supabase
+            .from('tasks')
+            .update({ title: editTitle })
+            .eq('id', taskId)
+
+        if (error) {
+            console.error('Failed to update title:', error.message);
+        } else if (userId) {
+            setEditTaskId(null);
+            setEditTitle('');
+            await fetchTasks(userId);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditTaskId(null);
+        setEditTitle('');
+    }
+
     return (
         <main className='min-h-screen bg-gray-100 p-8'>
             <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
@@ -111,7 +135,7 @@ export default function DashboardPage() {
                         </p>
                         <button
                             onClick={handleLogout}
-                            className="text-sm text-gray-500 hover:text-red-500 hover:bg-red-100 px-3 py-1 rounded transition"
+                            className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded hover:bg-red-200 transition"
                         >
                             🔓 Logout
                         </button>
@@ -143,20 +167,62 @@ export default function DashboardPage() {
                                 key={task.id}
                                 className='p-3 bg-gray-50 border rounded flex justify-between items-center'
                             >
-                                <div className='flex items-center gap-3'>
+                                <div className='flex items-center gap-3 flex-1'>
                                     <input
                                         type='checkbox'
                                         checked={task.completed}
                                         onChange={() => handleToggleComplete(task)}
                                     />
-                                    <span className={task.completed ? 'line-through text-gray-400' : ''}>
-                                        {task.title}
-                                    </span>
+                                    {editTaskId === task.id ? (
+                                        <input
+                                            value={editTitle}
+                                            onChange={(e) => setEditTitle(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleConfirmEdit(task.id);
+                                                if (e.key === 'Escape') handleCancelEdit();
+                                            }}
+                                            autoFocus
+                                            className='border rounded px-2 py-1 w-full text-sm'
+                                        />
+                                    ) : (
+                                        <span className={task.completed ? 'line-through text-gray-400' : ''}>
+                                            {task.title}
+                                        </span>
+                                    )}
                                 </div>
-                                <button onClick={() => handleDeleteTask(task.id)}
-                                    className='text-red-500 hover:text-red-700 text-s'>
-                                    🗑 Delete
-                                </button>
+
+                                <div className='flex items-center gap-2'>
+                                    {editTaskId === task.id ? (
+                                        <>
+                                            <button
+                                                onClick={() => handleConfirmEdit(task.id)}
+                                                className='text-green-600 text-sm hover:underline'
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={handleCancelEdit}
+                                                className='text-gray-500 text-sm hover:underline'
+                                            >
+                                                Cancel
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <button
+                                            onClick={() => {
+                                                setEditTaskId(task.id)
+                                                setEditTitle(task.title)
+                                            }}
+                                            className='text-blue-500 text-sm hover:underline'
+                                        >
+                                            📝Edit
+                                        </button>
+                                    )}
+                                    <button onClick={() => handleDeleteTask(task.id)}
+                                        className='text-red-500 hover:text-red-700 text-s'>
+                                        🗑 Delete
+                                    </button>
+                                </div>
                             </li>
                         ))}
                     </ul>
