@@ -1,38 +1,51 @@
-    // 'use client'
-    // import { auth, db } from "@/lib/firebase";
-    // import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
-    // import { useRouter } from "next/navigation"
-    // import { useEffect } from "react";
+'use client'
 
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import { v4 as uuidv4 } from 'uuid'
 
-    // export default function LoginPage() {
-    //     const router = useRouter();
+export default function LoginPage(){
+    const router = useRouter();
 
-    //     const handleGuestLogin = async () => {
-    //         try {
-    //             await signInAnonymously(auth);
-    //         } catch (error) {
-    //             console.error("Guest login failed:", error);
-    //         }
-    //     }
+    const handleGuestLogin = async () => {
+        const id = uuidv4();
+        const email = `guest_${id}@taskpilot.com`
+        const password = id;
 
-    //     useEffect(() => {
-    //         const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //             if (user) {
-    //                 router.push('/dashboard');
-    //             }
-    //         })
-    //         return () => unsubscribe();
+        const {data, error} = await supabase.auth.signUp({
+            email,
+            password,
+        });
 
-    //     }, [router]);
+        if(error && !error.message.includes(`User already registered`)){
+            console.error('Sign up error:', error.message);
+            return;
+        }
 
-    //     return (
-    //         <main className="flex flex-col items-center justify-center min-h-screen">
-    //             <h1 className="text-3xl font-bold mb-4 text-orange-500">Welcome to TaskPilot</h1>
-    //             <button onClick={handleGuestLogin}
-    //                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
-    //                 Login as guest
-    //             </button>
-    //         </main>
-    //     )
-    // }
+        const {error: loginError} = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if(loginError){
+            console.error('login error:', loginError.message)
+            return;
+        }
+
+        router.push('/dashboard');
+    };
+
+    return(
+        <main className='min-h-screen flex items-center justify-center bg-gray-100'>
+            <div className='bg-white pg-8 rounded shadow max-w-md w-full text-center'>
+                <h1 className='text-2xl font-bold mb-4'>Welcome to TaskPilot 🔥
+                    <p className='mb-6 text-gray-600'>Start instantly as a guest
+                        <button onClick={handleGuestLogin} className='bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600'>
+                            Continue as Guest
+                        </button>
+                    </p>
+                </h1>
+            </div>
+        </main>
+    )
+}
