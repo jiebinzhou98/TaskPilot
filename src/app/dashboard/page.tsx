@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 interface Task {
   id: number;
   title: string;
+  completed: boolean;
 }
 
 export default function DashboardPage() {
@@ -72,6 +73,19 @@ export default function DashboardPage() {
     }
   };
 
+  const handleToggleComplete = async (task: Task) => {
+    const {error} = await supabase
+        .from('tasks')
+        .update({ completed: !task.completed})
+        .eq('id', task.id)
+
+        if(error){
+            console.error('Failed to update task:',error.message);
+        }else if(userId){
+            await fetchTasks(userId);
+        }
+  }
+
   return (
     <main className='min-h-screen bg-gray-100 p-8'>
       <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
@@ -102,7 +116,16 @@ export default function DashboardPage() {
                 key={task.id}
                 className='p-3 bg-gray-50 border rounded flex justify-between items-center'
               >
-                <span>{task.title}</span>
+                <div className='flex items-center gap-3'>
+                    <input 
+                        type='checkbox'
+                        checked={task.completed}
+                        onChange={() => handleToggleComplete(task)}
+                    />
+                <span className={task.completed ? 'line-through text-gray-400' : ''}>
+                    {task.title}
+                </span>
+                </div>
                 <button onClick={()=>handleDeleteTask(task.id)} 
                     className='text-red-500 hover:text-red-700 text-s'>
                         🗑 Delete
