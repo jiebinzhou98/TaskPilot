@@ -8,6 +8,7 @@ interface Task {
     id: number;
     title: string;
     completed: boolean;
+    category: string;
 }
 
 export default function DashboardPage() {
@@ -18,6 +19,7 @@ export default function DashboardPage() {
     const [nickname, setNickname] = useState<string | null>(null);
     const [editTaskId, setEditTaskId] = useState<number | null>(null);
     const [editTitle, setEditTitle] = useState('');
+    const [categoryInput, setCategoryInput] = useState('General');
     
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -64,6 +66,7 @@ export default function DashboardPage() {
         const { error } = await supabase.from('tasks').insert({
             title: taskInput.trim(),
             user_id: userId,
+            category: categoryInput,
         });
 
         if (error) {
@@ -159,6 +162,18 @@ export default function DashboardPage() {
                         onChange={(e) => setTaskInput(e.target.value)}
                         className='flex-1 border px-3 py-2 rounded'
                     />
+
+                    <select
+                        value={categoryInput}
+                        onChange={(e) => setCategoryInput(e.target.value)}
+                        className='border px-3 py-2 rounded'
+                    >
+                        <option value="General">General</option>
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Study">Study</option>
+                    </select>
+
                     <button
                         type='submit'
                         className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
@@ -211,9 +226,12 @@ export default function DashboardPage() {
                                             className='border rounded px-2 py-1 w-full text-sm'
                                         />
                                     ) : (
-                                        <span className={task.completed ? 'line-through text-gray-400' : ''}>
+                                        <div className={task.completed ? 'line-through text-gray-400' : ''}>
+                                            <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
+                                                {task.category}
+                                            </span>
                                             {task.title}
-                                        </span>
+                                        </div>
                                     )}
                                 </div>
 
