@@ -9,6 +9,7 @@ interface Task {
     title: string;
     completed: boolean;
     category: string;
+    due_date: string | null;
 }
 
 export default function DashboardPage() {
@@ -20,6 +21,7 @@ export default function DashboardPage() {
     const [editTaskId, setEditTaskId] = useState<number | null>(null);
     const [editTitle, setEditTitle] = useState('');
     const [categoryInput, setCategoryInput] = useState('General');
+    const [dueDateInput, setDueDateInput] = useState('');
     
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -67,6 +69,7 @@ export default function DashboardPage() {
             title: taskInput.trim(),
             user_id: userId,
             category: categoryInput,
+            due_date: dueDateInput || null,
         });
 
         if (error) {
@@ -162,6 +165,13 @@ export default function DashboardPage() {
                         onChange={(e) => setTaskInput(e.target.value)}
                         className='flex-1 border px-3 py-2 rounded'
                     />
+                    <input
+                        type='date'
+                        value={dueDateInput}
+                        onChange={(e) => setDueDateInput(e.target.value)}
+                        className='border px-3 py-2 rounded'
+                    />
+                    
 
                     <select
                         value={categoryInput}
@@ -226,11 +236,18 @@ export default function DashboardPage() {
                                             className='border rounded px-2 py-1 w-full text-sm'
                                         />
                                     ) : (
-                                        <div className={task.completed ? 'line-through text-gray-400' : ''}>
-                                            <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
-                                                {task.category}
+                                        <div className="flex flex-col">
+                                            <span className={task.completed ? 'line-through text-gray-400' : ''}>
+                                                <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
+                                                    {task.category}
+                                                </span>
+                                                    {task.title}
                                             </span>
-                                            {task.title}
+                                            {task.due_date && (
+                                                <p className='text-xs text-gray-500 mt-1'>
+                                                    📅 Due:{task.due_date}
+                                                </p>
+                                            )}                                            
                                         </div>
                                     )}
                                 </div>
