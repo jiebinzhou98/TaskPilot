@@ -22,6 +22,7 @@ export default function DashboardPage() {
     const [editTitle, setEditTitle] = useState('');
     const [categoryInput, setCategoryInput] = useState('General');
     const [dueDateInput, setDueDateInput] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -137,7 +138,10 @@ export default function DashboardPage() {
         if(filter === 'completed') return task.completed;
         if(filter === 'incomplete') return !task.completed;
         return true;
-    }).sort((a, b) => {
+    })
+    .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
         if(!a.due_date) return 1;
         if(!b.due_date) return -1;
 
@@ -211,6 +215,14 @@ export default function DashboardPage() {
                         Add Task
                     </button>
                 </form>
+
+                <input
+                    type='text'
+                    placeholder='Search tasks...'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className='w-full mb-4 border px-3 py-2 rounded'
+                />
                 
                 <div className='mb-4 flex gap-2'>
                     {(['all','completed','incomplete'] as Filter[]).map((f) => (
