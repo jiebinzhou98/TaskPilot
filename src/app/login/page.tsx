@@ -3,11 +3,15 @@
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
+import { useState } from 'react'
 
 export default function LoginPage(){
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const handleGuestLogin = async () => {
+        setLoading(true)
+
         const id = uuidv4();
         const email = `guest_${id}@taskpilot.com`
         const password = id;
@@ -36,12 +40,15 @@ export default function LoginPage(){
     };
 
     return(
-        <main className='min-h-screen flex items-center justify-center bg-gray-100'>
-            <div className='bg-white pg-8 rounded shadow max-w-md w-full text-center'>
-                <h1 className='text-2xl font-bold mb-4'>Welcome to TaskPilot 🔥
-                    <p className='mb-6 text-gray-600'>Start instantly as a guest
-                        <button onClick={handleGuestLogin} className='bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600'>
-                            Continue as Guest
+        <main className='min-h-screen flex items-center justify-center bg-gradient from-blue-100 to-indigo-100'>
+            <div className='bg-white p-8 rounded-2xl shadow-md max-w-md w-full text-center animate-fade-in'>
+                <h1 className='text-3xl font-bold text-gray-800 mb-4'>Welcome to TaskPilot 🔥
+                    <p className='mb-6 text-gray-600 text-sm'>Your simple tast manager
+                        <button 
+                            onClick={handleGuestLogin} 
+                            disabled={loading}
+                            className='w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded transition'>
+                            {loading ? 'Logging in ...' : 'Continue as Guest 🚀'}
                         </button>
                     </p>
                 </h1>
