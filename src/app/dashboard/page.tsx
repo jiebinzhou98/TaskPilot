@@ -23,7 +23,8 @@ export default function DashboardPage() {
     const [categoryInput, setCategoryInput] = useState('General');
     const [dueDateInput, setDueDateInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    
+    const [categoryFilter, setCategoryFilter] = useState('all')
+
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
 
@@ -135,21 +136,21 @@ export default function DashboardPage() {
     }
 
     const filteredTasks = tasks.filter((task) => {
-        if(filter === 'completed') return task.completed;
-        if(filter === 'incomplete') return !task.completed;
+        if (filter === 'completed') return task.completed;
+        if (filter === 'incomplete') return !task.completed;
         return true;
     })
-    .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-        if(!a.due_date) return 1;
-        if(!b.due_date) return -1;
+        .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        .filter((task) => categoryFilter === 'all' ? true : task.category === categoryFilter)
+        .sort((a, b) => {
+            if (!a.due_date) return 1;
+            if (!b.due_date) return -1;
 
-        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
-    })
+            return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+        })
 
     const getDueDateColor = (dueDate: string | null) => {
-        if(!dueDate) return 'text-gray-500'
+        if (!dueDate) return 'text-gray-500'
 
         const today = new Date();
         const due = new Date(dueDate)
@@ -195,7 +196,7 @@ export default function DashboardPage() {
                         onChange={(e) => setDueDateInput(e.target.value)}
                         className='border px-3 py-2 rounded'
                     />
-                    
+
 
                     <select
                         value={categoryInput}
@@ -223,22 +224,38 @@ export default function DashboardPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className='w-full mb-4 border px-3 py-2 rounded'
                 />
-                
-                <div className='mb-4 flex gap-2'>
-                    {(['all','completed','incomplete'] as Filter[]).map((f) => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`px-3 py-1 rounded text-sm border ${filter === f
-                                ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
-                            }`}
-                        >
-                            {f === 'all' && 'All'}
-                            {f === 'completed' && 'Completed'}
-                            {f === 'incomplete' && 'Incomplete'}
-                        </button>
-                    ))}
+
+                <div className="mb-4 flex justify-between items-center gap-2 flex-wrap">
+                    {/* Filter buttons on the left */}
+                    <div className="flex gap-2">
+                        {(['all', 'completed', 'incomplete'] as Filter[]).map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                className={`px-3 py-1 rounded text-sm border ${filter === f
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                    }`}
+                            >
+                                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Category dropdown on the right */}
+                    <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="border px-3 py-2 rounded text-sm"
+                    >
+                        <option value="all">All Categories</option>
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Study">Study</option>
+                        <option value="General">General</option>
+                    </select>
                 </div>
+
 
 
                 {tasks.length === 0 ? (
@@ -273,15 +290,15 @@ export default function DashboardPage() {
                                                 <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
                                                     {task.category}
                                                 </span>
-                                                    {task.completed && <span className='text-green-500'>✅</span>}
-                                                    {task.title}
+                                                {task.completed && <span className='text-green-500'>✅</span>}
+                                                {task.title}
                                             </span>
                                             {task.due_date && (
                                                 <p className={`text-xs ${getDueDateColor(task.due_date)}`}>
 
                                                     📅 Due:{task.due_date}
                                                 </p>
-                                            )}                                            
+                                            )}
                                         </div>
                                     )}
                                 </div>
