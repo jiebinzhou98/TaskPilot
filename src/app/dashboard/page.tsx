@@ -144,6 +144,21 @@ export default function DashboardPage() {
         return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
     })
 
+    const getDueDateColor = (dueDate: string | null) => {
+        if(!dueDate) return 'text-gray-500'
+
+        const today = new Date();
+        const due = new Date(dueDate)
+
+        const diffTime = due.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 0) return 'text-red-500'
+        if (diffDays <= 3) return 'text-yellow-500'
+
+        return 'text-gray-500'
+    }
+
     return (
         <main className='min-h-screen bg-gray-100 p-8'>
             <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
@@ -242,14 +257,16 @@ export default function DashboardPage() {
                                         />
                                     ) : (
                                         <div className="flex flex-col">
-                                            <span className={task.completed ? 'line-through text-gray-400' : ''}>
+                                            <span className={`flex items-center gap-2 ${task.completed ? 'line-through text-green-600' : 'text-gray-800'}`}>
                                                 <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
                                                     {task.category}
                                                 </span>
+                                                    {task.completed && <span className='text-green-500'>✅</span>}
                                                     {task.title}
                                             </span>
                                             {task.due_date && (
-                                                <p className='text-xs text-gray-500 mt-1'>
+                                                <p className={`text-xs ${getDueDateColor(task.due_date)}`}>
+
                                                     📅 Due:{task.due_date}
                                                 </p>
                                             )}                                            
