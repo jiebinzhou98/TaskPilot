@@ -287,7 +287,13 @@ export default function DashboardPage() {
                                     ) : (
                                         <div className="flex flex-col">
                                             <span className={`flex items-center gap-2 ${task.completed ? 'line-through text-green-600' : 'text-gray-800'}`}>
-                                                <span className='text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded mr-2'>
+                                                <span className={`text-xs font-medium px-2 py-0.5 rounded mr-2
+                                                    ${task.category === 'Work' ? 'bg-blue-100 text-blue-800' :
+                                                        task.category === 'Personal' ? 'bg-pink-200 text-pink-800' :
+                                                        task.category === 'Study' ? 'bg-yellow-200 text-yellow-800' :
+                                                        'bg-gray-200 text-gray-700'
+                                                    }`}
+                                                >
                                                     {task.category}
                                                 </span>
                                                 {task.completed && <span className='text-green-500'>✅</span>}
