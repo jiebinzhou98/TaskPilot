@@ -314,15 +314,15 @@ export default function DashboardPage() {
                                         <>
                                             <button
                                                 onClick={() => handleConfirmEdit(task.id)}
-                                                className='text-green-600 text-sm hover:underline'
+                                                className='bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200 transition'
                                             >
-                                                Save
+                                                ✅Save
                                             </button>
                                             <button
                                                 onClick={handleCancelEdit}
-                                                className='text-gray-500 text-sm hover:underline'
+                                                className='bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded hover:bg-gray-300 transition'
                                             >
-                                                Cancel
+                                                ✖Cancel
                                             </button>
                                         </>
                                     ) : (
@@ -331,13 +331,13 @@ export default function DashboardPage() {
                                                 setEditTaskId(task.id)
                                                 setEditTitle(task.title)
                                             }}
-                                            className='text-blue-500 text-sm hover:underline'
+                                            className='bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded hover:bg-blue-200 transition'
                                         >
                                             📝Edit
                                         </button>
                                     )}
                                     <button onClick={() => handleDeleteTask(task.id)}
-                                        className='text-red-500 hover:text-red-700 text-s'>
+                                        className='bg-text-100 text-red-700 text-xs px-2 py-1 rounded hover:bg-red-200 transition'>
                                         🗑 Delete
                                     </button>
                                 </div>
