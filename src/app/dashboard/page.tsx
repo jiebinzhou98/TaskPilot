@@ -137,6 +137,11 @@ export default function DashboardPage() {
         if(filter === 'completed') return task.completed;
         if(filter === 'incomplete') return !task.completed;
         return true;
+    }).sort((a, b) => {
+        if(!a.due_date) return 1;
+        if(!b.due_date) return -1;
+
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
     })
 
     return (
