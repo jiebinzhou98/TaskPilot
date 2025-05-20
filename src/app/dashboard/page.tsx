@@ -5,11 +5,12 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 interface Task {
-    id: number;
-    title: string;
-    completed: boolean;
-    category: string;
-    due_date: string | null;
+    id: number,
+    title: string,
+    completed: boolean,
+    category: string,
+    due_date: string | null,
+    priority: 'Low' | 'Medium' | 'High',
 }
 
 export default function DashboardPage() {
@@ -23,7 +24,8 @@ export default function DashboardPage() {
     const [categoryInput, setCategoryInput] = useState('General');
     const [dueDateInput, setDueDateInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('all')
+    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [priorityInput, setPriorityInput] = useState('Medium');
 
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -72,6 +74,7 @@ export default function DashboardPage() {
             user_id: userId,
             category: categoryInput,
             due_date: dueDateInput || null,
+            priority: priorityInput,
         });
 
         if (error) {
@@ -135,6 +138,10 @@ export default function DashboardPage() {
         setEditTitle('');
     }
 
+    const getPriorityValue = (priority: string) =>{
+        return priority === 'High' ? 1: priority === "Medium" ? 2: 3;
+    }
+
     const filteredTasks = tasks.filter((task) => {
         if (filter === 'completed') return task.completed;
         if (filter === 'incomplete') return !task.completed;
@@ -143,6 +150,10 @@ export default function DashboardPage() {
         .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()))
         .filter((task) => categoryFilter === 'all' ? true : task.category === categoryFilter)
         .sort((a, b) => {
+            if(a.priority !== b.priority){
+                return getPriorityValue(a.priority) - getPriorityValue(b.priority)
+            }
+
             if (!a.due_date) return 1;
             if (!b.due_date) return -1;
 
@@ -182,7 +193,7 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                <form onSubmit={handleAddTask} className='flex gap-2 mb-6'>
+                <form onSubmit={handleAddTask} className='flex flex-wrap gap-2 mb-6'>
                     <input
                         type='text'
                         placeholder='Enter a new task...'
@@ -197,7 +208,19 @@ export default function DashboardPage() {
                         className='border px-3 py-2 rounded'
                     />
 
+                    {/* {priority} */}
+                    <select 
+                        value={priorityInput}
+                        onChange={(e) => setPriorityInput(e.target.value)}
+                        className='border px-3 py-2 rounded'
+                    >
+                        <option value="Medium">Meduim</option>
+                        <option value="High">High</option>
+                        <option value="Low">Low</option>
+                    </select>
 
+
+                    {/* {category} */}
                     <select
                         value={categoryInput}
                         onChange={(e) => setCategoryInput(e.target.value)}
@@ -296,6 +319,15 @@ export default function DashboardPage() {
                                                 >
                                                     {task.category}
                                                 </span>
+                                                <span className={`text-xs font-medium px-2 py-05 rounded ${
+                                                    task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                                                    task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-green-100 text-green-700'
+                                                }`}>
+                                                    {task.priority}
+
+                                                </span>
+
                                                 {task.completed && <span className='text-green-500'>✅</span>}
                                                 {task.title}
                                             </span>
@@ -344,6 +376,8 @@ export default function DashboardPage() {
                             </li>
                         ))}
                     </ul>
+
+                    
                 )}
             </div>
         </main>
