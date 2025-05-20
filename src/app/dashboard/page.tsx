@@ -175,6 +175,10 @@ export default function DashboardPage() {
         return 'text-gray-500'
     }
 
+    const completedCount = tasks.filter((t) => t.completed).length;
+    const totalCount = tasks.length;
+    const percentage = totalCount === 0 ? 0 : ((completedCount / totalCount) * 100).toFixed(0);
+
     return (
         <main className='min-h-screen bg-gray-100 p-8'>
             <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
@@ -284,6 +288,7 @@ export default function DashboardPage() {
                 {tasks.length === 0 ? (
                     <p className='text-gray-500 italic'>No tasks yet. Start by adding one!</p>
                 ) : (
+                    <>
                     <ul className='space-y-2'>
                         {filteredTasks.map((task) => (
                             <li
@@ -376,8 +381,10 @@ export default function DashboardPage() {
                             </li>
                         ))}
                     </ul>
-
-                    
+                    <div className='mt-6 text-sm text-gray-600 text-center'>
+                         ✅Completed {completedCount} / {totalCount} tasks ({percentage}%)
+                    </div>
+                    </>  
                 )}
             </div>
         </main>
