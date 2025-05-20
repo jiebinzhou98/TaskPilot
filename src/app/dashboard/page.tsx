@@ -31,8 +31,13 @@ export default function DashboardPage() {
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
-        document.body.classList.toggle('dark', isDarkMode);
-    }, [isDarkMode]);
+        const hour = new Date().getHours();
+        const prefersDark = hour < 7 || hour > 19;
+
+        setIsDarkMode(prefersDark);
+        document.body.classList.toggle('dark', prefersDark);
+    }, []);
+
 
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -196,19 +201,19 @@ export default function DashboardPage() {
                             Welcome, <span className="font-medium text-gray-800">{nickname}</span>
                         </p>
                         <div className='flex gap-2'>
-                        <button
-                            onClick={() => setIsDarkMode(prev => !prev)}
-                            className="bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
-                        >
-                            {isDarkMode ? '☀️ Light' : '🌙 Dark'}
-                        </button>
+                            <button
+                                onClick={() => setIsDarkMode(prev => !prev)}
+                                className="bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
+                            >
+                                {isDarkMode ? '🌙 Dark' : '☀️ Light'}
+                            </button>
 
-                        <button
-                            onClick={handleLogout}
-                            className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded hover:bg-red-200 dark:bg-red-800 dark:text-white dark:hover:bg-red-700 transition"
-                        >
-                            🔓 Logout
-                        </button>
+                            <button
+                                onClick={handleLogout}
+                                className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded hover:bg-red-200 dark:bg-red-800 dark:text-white dark:hover:bg-red-700 transition"
+                            >
+                                🔓 Logout
+                            </button>
                         </div>
                     </div>
                 )}
@@ -341,8 +346,8 @@ export default function DashboardPage() {
                                                         {task.category}
                                                     </span>
                                                     <span className={`text-xs font-medium px-2 py-05 rounded ${task.priority === 'High' ? 'bg-red-100 text-red-700' :
-                                                            task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                                'bg-green-100 text-green-700'
+                                                        task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-green-100 text-green-700'
                                                         }`}>
                                                         {task.priority}
 
@@ -409,15 +414,17 @@ export default function DashboardPage() {
                         </div>
                         {showModal && (
                             <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-                                <div className='bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 max-w-md relative'>
+                                <div className='bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-3xl relative'>
                                     <button
                                         onClick={() => setShowModal(false)}
                                         className='absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-white'
                                     >
                                         ✖
                                     </button>
-                                    <h2 className='text-xl font-semibold mb-4'>📊 Task Statistics</h2>
-                                    <StatsChart tasks={tasks}/>
+                                    <h2 className='text-xl font-semibold text-center'>📊Completed Task by Category</h2>
+                                    <div className='h-[400px] mt-6'>
+                                    <StatsChart tasks={tasks} />
+                                    </div>
                                 </div>
                             </div>
                         )}
