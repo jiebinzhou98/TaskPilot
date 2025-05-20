@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import StatsChart from './StatsChart';
 
 interface Task {
     id: number,
@@ -27,6 +28,7 @@ export default function DashboardPage() {
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [priorityInput, setPriorityInput] = useState('Medium');
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [showStats, setShowStats] = useState(false);
 
     useEffect(() => {
         document.body.classList.toggle('dark', isDarkMode);
@@ -397,6 +399,20 @@ export default function DashboardPage() {
                         <div className='mt-6 text-sm text-gray-600 text-center'>
                             ✅Completed {completedCount} / {totalCount} tasks ({percentage}%)
                         </div>
+                        <div className='text-center mt-6'>
+                            <button
+                                onClick={() => setShowStats(!showStats)}
+                                className='bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition'
+                            >
+                                {showStats ? 'Hide Chart 📉' : 'Show Chart 📊'}
+                            </button>
+                        </div>
+                        {showStats &&(
+                            <div className='mt-6 p-4 border-t dark:border-gray-700'>
+                                <h2 className='text-lg font-semibold mb-4'>📊Task Statistics</h2>
+                                <StatsChart tasks={tasks}/>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
