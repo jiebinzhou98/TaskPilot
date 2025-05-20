@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaskPilot
+
+TaskPilot is a modern task manager built with [Next.js](https://nextjs.org), [Supabase](https://supabase.com), and [Drizzle ORM](https://orm.drizzle.team/). It features user authentication, task CRUD, category & priority management, and visual statistics.
+
+✨ Features
+✅ Add / edit / delete tasks
+
+📅 Due date selector with urgency color indicators
+
+📂 Category + priority tags with colored labels
+
+🎯 Filter by completion, category, or search by keyword
+
+📊 Interactive Pie Chart for completed tasks by category
+
+🌙 Light / Dark mode toggle (auto switch based on time)
+
+💬 Guest login via Supabase Auth (no registration required)
+
+📦 Tech Stack
+Frontend: Next.js 14 (App Router), Tailwind CSS
+
+Backend: Supabase (Database + Auth)
+
+Charting: Recharts (PieChart)
+
+Deployment: Vercel + Supabase
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/taskpilot.git
+cd taskpilot
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3. Set up environment variables
+
+Create a `.env.local` file in the root directory and add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+> You can find these in your [Supabase project settings](https://app.supabase.com/).
+
+### 4. Run the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Uses Supabase Postgres for storage and authentication.
+- See [`src/lib/schema.ts`](src/lib/schema.ts) for the Drizzle ORM schema.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    dashboard/      # Dashboard UI and logic
+    login/          # Login page
+    layout.tsx      # App layout
+    globals.css     # Global styles
+  lib/
+    supabase.ts     # Supabase client
+    schema.ts       # Drizzle ORM schema
+    nickname.ts     # Nickname utility
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — Start development server
+- `npm run build` — Build for production
+- `npm run start` — Start production server
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deploy easily on [Vercel](https://vercel.com/) or any platform supporting Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT
+
+---
+
+Made with ❤️ using Next.js, Supabase, and Drizzle ORM.
