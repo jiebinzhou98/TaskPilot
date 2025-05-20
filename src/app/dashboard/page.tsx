@@ -26,6 +26,11 @@ export default function DashboardPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [priorityInput, setPriorityInput] = useState('Medium');
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useEffect(() => {
+        document.body.classList.toggle('dark', isDarkMode);
+    }, [isDarkMode]);
 
     type Filter = 'all' | 'completed' | 'incomplete';
     const [filter, setFilter] = useState<Filter>('all')
@@ -138,8 +143,8 @@ export default function DashboardPage() {
         setEditTitle('');
     }
 
-    const getPriorityValue = (priority: string) =>{
-        return priority === 'High' ? 1: priority === "Medium" ? 2: 3;
+    const getPriorityValue = (priority: string) => {
+        return priority === 'High' ? 1 : priority === "Medium" ? 2 : 3;
     }
 
     const filteredTasks = tasks.filter((task) => {
@@ -150,7 +155,7 @@ export default function DashboardPage() {
         .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()))
         .filter((task) => categoryFilter === 'all' ? true : task.category === categoryFilter)
         .sort((a, b) => {
-            if(a.priority !== b.priority){
+            if (a.priority !== b.priority) {
                 return getPriorityValue(a.priority) - getPriorityValue(b.priority)
             }
 
@@ -180,20 +185,29 @@ export default function DashboardPage() {
     const percentage = totalCount === 0 ? 0 : ((completedCount / totalCount) * 100).toFixed(0);
 
     return (
-        <main className='min-h-screen bg-gray-100 p-8'>
-            <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6'>
+        <main className='min-h-screen bg-gray-100 p-8 dark:bg-gray-900 text-gray-900 dark:text-white'>
+            <div className='max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-6 dark:bg-gray-800'>
                 <h1 className='text-3xl font-bold mb-4'>🔥 TaskPilot Dashboard</h1>
                 {nickname && (
                     <div className="flex justify-between items-center mb-4">
                         <p className="text-sm text-gray-600">
                             Welcome, <span className="font-medium text-gray-800">{nickname}</span>
                         </p>
+                        <div className='flex gap-2'>
+                        <button
+                            onClick={() => setIsDarkMode(prev => !prev)}
+                            className="bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition"
+                        >
+                            {isDarkMode ? '☀️ Light' : '🌙 Dark'}
+                        </button>
+
                         <button
                             onClick={handleLogout}
-                            className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded hover:bg-red-200 transition"
+                            className="bg-red-100 text-red-700 text-sm px-4 py-2 rounded hover:bg-red-200 dark:bg-red-800 dark:text-white dark:hover:bg-red-700 transition"
                         >
                             🔓 Logout
                         </button>
+                        </div>
                     </div>
                 )}
 
@@ -213,7 +227,7 @@ export default function DashboardPage() {
                     />
 
                     {/* {priority} */}
-                    <select 
+                    <select
                         value={priorityInput}
                         onChange={(e) => setPriorityInput(e.target.value)}
                         className='border px-3 py-2 rounded'
@@ -260,8 +274,8 @@ export default function DashboardPage() {
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-3 py-1 rounded text-sm border ${filter === f
-                                        ? 'bg-blue-500 text-white'
-                                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -289,102 +303,101 @@ export default function DashboardPage() {
                     <p className='text-gray-500 italic'>No tasks yet. Start by adding one!</p>
                 ) : (
                     <>
-                    <ul className='space-y-2'>
-                        {filteredTasks.map((task) => (
-                            <li
-                                key={task.id}
-                                className='p-3 bg-gray-50 border rounded flex justify-between items-center'
-                            >
-                                <div className='flex items-center gap-3 flex-1'>
-                                    <input
-                                        type='checkbox'
-                                        checked={task.completed}
-                                        onChange={() => handleToggleComplete(task)}
-                                    />
-                                    {editTaskId === task.id ? (
+                        <ul className='space-y-2'>
+                            {filteredTasks.map((task) => (
+                                <li
+                                    key={task.id}
+                                    className='p-3 bg-gray-50 border rounded flex justify-between items-center'
+                                >
+                                    <div className='flex items-center gap-3 flex-1'>
                                         <input
-                                            value={editTitle}
-                                            onChange={(e) => setEditTitle(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') handleConfirmEdit(task.id);
-                                                if (e.key === 'Escape') handleCancelEdit();
-                                            }}
-                                            autoFocus
-                                            className='border rounded px-2 py-1 w-full text-sm'
+                                            type='checkbox'
+                                            checked={task.completed}
+                                            onChange={() => handleToggleComplete(task)}
                                         />
-                                    ) : (
-                                        <div className="flex flex-col">
-                                            <span className={`flex items-center gap-2 ${task.completed ? 'line-through text-green-600' : 'text-gray-800'}`}>
-                                                <span className={`text-xs font-medium px-2 py-0.5 rounded mr-2
+                                        {editTaskId === task.id ? (
+                                            <input
+                                                value={editTitle}
+                                                onChange={(e) => setEditTitle(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleConfirmEdit(task.id);
+                                                    if (e.key === 'Escape') handleCancelEdit();
+                                                }}
+                                                autoFocus
+                                                className='border rounded px-2 py-1 w-full text-sm'
+                                            />
+                                        ) : (
+                                            <div className="flex flex-col">
+                                                <span className={`flex items-center gap-2 ${task.completed ? 'line-through text-green-600' : 'text-gray-800'}`}>
+                                                    <span className={`text-xs font-medium px-2 py-0.5 rounded mr-2
                                                     ${task.category === 'Work' ? 'bg-blue-100 text-blue-800' :
-                                                        task.category === 'Personal' ? 'bg-pink-200 text-pink-800' :
-                                                        task.category === 'Study' ? 'bg-yellow-200 text-yellow-800' :
-                                                        'bg-gray-200 text-gray-700'
-                                                    }`}
+                                                            task.category === 'Personal' ? 'bg-pink-200 text-pink-800' :
+                                                                task.category === 'Study' ? 'bg-yellow-200 text-yellow-800' :
+                                                                    'bg-gray-200 text-gray-700'
+                                                        }`}
+                                                    >
+                                                        {task.category}
+                                                    </span>
+                                                    <span className={`text-xs font-medium px-2 py-05 rounded ${task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                                                            task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-green-100 text-green-700'
+                                                        }`}>
+                                                        {task.priority}
+
+                                                    </span>
+
+                                                    {task.completed && <span className='text-green-500'>✅</span>}
+                                                    {task.title}
+                                                </span>
+                                                {task.due_date && (
+                                                    <p className={`text-xs ${getDueDateColor(task.due_date)}`}>
+
+                                                        📅 Due:{task.due_date}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className='flex items-center gap-2'>
+                                        {editTaskId === task.id ? (
+                                            <>
+                                                <button
+                                                    onClick={() => handleConfirmEdit(task.id)}
+                                                    className='bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200 transition'
                                                 >
-                                                    {task.category}
-                                                </span>
-                                                <span className={`text-xs font-medium px-2 py-05 rounded ${
-                                                    task.priority === 'High' ? 'bg-red-100 text-red-700' :
-                                                    task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-green-100 text-green-700'
-                                                }`}>
-                                                    {task.priority}
-
-                                                </span>
-
-                                                {task.completed && <span className='text-green-500'>✅</span>}
-                                                {task.title}
-                                            </span>
-                                            {task.due_date && (
-                                                <p className={`text-xs ${getDueDateColor(task.due_date)}`}>
-
-                                                    📅 Due:{task.due_date}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className='flex items-center gap-2'>
-                                    {editTaskId === task.id ? (
-                                        <>
+                                                    ✅Save
+                                                </button>
+                                                <button
+                                                    onClick={handleCancelEdit}
+                                                    className='bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded hover:bg-gray-300 transition'
+                                                >
+                                                    ✖Cancel
+                                                </button>
+                                            </>
+                                        ) : (
                                             <button
-                                                onClick={() => handleConfirmEdit(task.id)}
-                                                className='bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200 transition'
+                                                onClick={() => {
+                                                    setEditTaskId(task.id)
+                                                    setEditTitle(task.title)
+                                                }}
+                                                className='bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded hover:bg-blue-200 transition'
                                             >
-                                                ✅Save
+                                                📝Edit
                                             </button>
-                                            <button
-                                                onClick={handleCancelEdit}
-                                                className='bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded hover:bg-gray-300 transition'
-                                            >
-                                                ✖Cancel
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button
-                                            onClick={() => {
-                                                setEditTaskId(task.id)
-                                                setEditTitle(task.title)
-                                            }}
-                                            className='bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded hover:bg-blue-200 transition'
-                                        >
-                                            📝Edit
+                                        )}
+                                        <button onClick={() => handleDeleteTask(task.id)}
+                                            className='bg-text-100 text-red-700 text-xs px-2 py-1 rounded hover:bg-red-200 transition'>
+                                            🗑 Delete
                                         </button>
-                                    )}
-                                    <button onClick={() => handleDeleteTask(task.id)}
-                                        className='bg-text-100 text-red-700 text-xs px-2 py-1 rounded hover:bg-red-200 transition'>
-                                        🗑 Delete
-                                    </button>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className='mt-6 text-sm text-gray-600 text-center'>
-                         ✅Completed {completedCount} / {totalCount} tasks ({percentage}%)
-                    </div>
-                    </>  
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className='mt-6 text-sm text-gray-600 text-center'>
+                            ✅Completed {completedCount} / {totalCount} tasks ({percentage}%)
+                        </div>
+                    </>
                 )}
             </div>
         </main>
