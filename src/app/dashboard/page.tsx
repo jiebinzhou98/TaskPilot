@@ -28,7 +28,7 @@ export default function DashboardPage() {
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [priorityInput, setPriorityInput] = useState('Medium');
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [showStats, setShowStats] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         document.body.classList.toggle('dark', isDarkMode);
@@ -401,16 +401,24 @@ export default function DashboardPage() {
                         </div>
                         <div className='text-center mt-6'>
                             <button
-                                onClick={() => setShowStats(!showStats)}
+                                onClick={() => setShowModal(true)}
                                 className='bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded transition'
                             >
-                                {showStats ? 'Hide Chart 📉' : 'Show Chart 📊'}
+                                📊 View Task Stats
                             </button>
                         </div>
-                        {showStats &&(
-                            <div className='mt-6 p-4 border-t dark:border-gray-700'>
-                                <h2 className='text-lg font-semibold mb-4'>📊Task Statistics</h2>
-                                <StatsChart tasks={tasks}/>
+                        {showModal && (
+                            <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+                                <div className='bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 max-w-md relative'>
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className='absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-white'
+                                    >
+                                        ✖
+                                    </button>
+                                    <h2 className='text-xl font-semibold mb-4'>📊 Task Statistics</h2>
+                                    <StatsChart tasks={tasks}/>
+                                </div>
                             </div>
                         )}
                     </>
