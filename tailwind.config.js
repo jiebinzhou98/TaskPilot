@@ -17,6 +17,21 @@ module.exports = {
           to: { opacity: '1', transform: 'translateY(0)' },
         },
       },
+      colors: {
+        soft: {
+          background: '#E8F9EF',    // 浅绿
+          backgroundTo: '#DFF5E3',  // 渐变尾色
+          card: '#FDFDFD',          // 灰白容器
+          border: '#E2E8F0',        // 淡灰边框
+        },
+        accent: {
+          primary: '#C89F83',       // 奶茶棕
+          hover: '#b5876d',         // hover 色
+        },
+        text: {
+          main: '#333333',
+        }
+      },
     },
   },
   plugins: [],

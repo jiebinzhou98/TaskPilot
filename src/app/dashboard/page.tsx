@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import StatsChart from './StatsChart';
 import { TaskService, Task } from '@/lib/taskService';
 import { Button } from '@/components/ui/button';
@@ -98,83 +97,85 @@ export default function DashboardPage() {
     });
 
   return (
-    <main className='min-h-screen bg-background text-foreground p-4'>
-      <div className='max-w-3xl mx-auto space-y-6'>
-        <h1 className='text-3xl font-bold'>📋 Task Dashboard</h1>
+    <main className="min-h-screen p-4 bg-gradient-to-br from-[#E8F9EF] to-[#DFF5E3] text-[--foreground]">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <Card>
+          <h1 className="text-3xl font-bold mb-4">📋 TaskPilot Dashboard</h1>
+          <form onSubmit={handleAddTask} className="flex flex-wrap gap-3">
+            <Input
+              type="text"
+              value={taskInput}
+              placeholder="Enter a task"
+              onChange={(e) => setTaskInput(e.target.value)}
+            />
+            <Input type="date" value={dueDateInput} onChange={(e) => setDueDateInput(e.target.value)} />
 
-        <form onSubmit={handleAddTask} className='flex flex-wrap gap-3'>
+            <Select value={priorityInput} onValueChange={setPriorityInput}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={categoryInput} onValueChange={setCategoryInput}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="General">General</SelectItem>
+                <SelectItem value="Work">Work</SelectItem>
+                <SelectItem value="Personal">Personal</SelectItem>
+                <SelectItem value="Study">Study</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button type="submit">Add Task</Button>
+          </form>
+        </Card>
+
+        <Card className="p-4">
           <Input
-            type='text'
-            value={taskInput}
-            placeholder='Enter a task'
-            onChange={(e) => setTaskInput(e.target.value)}
-            className='flex-1'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="🔍 Search tasks"
           />
-          <Input type='date' value={dueDateInput} onChange={(e) => setDueDateInput(e.target.value)} />
 
-          <Select value={priorityInput} onValueChange={setPriorityInput}>
-            <SelectTrigger className='w-[120px]'>
-              <SelectValue placeholder='Priority' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='High'>High</SelectItem>
-              <SelectItem value='Medium'>Medium</SelectItem>
-              <SelectItem value='Low'>Low</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex gap-2">
+              {(['all', 'completed', 'incomplete'] as Filter[]).map((f) => (
+                <Button
+                  key={f}
+                  variant={filter === f ? 'default' : 'outline'}
+                  onClick={() => setFilter(f)}
+                >
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </Button>
+              ))}
+            </div>
 
-          <Select value={categoryInput} onValueChange={setCategoryInput}>
-            <SelectTrigger className='w-[120px]'>
-              <SelectValue placeholder='Category' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='General'>General</SelectItem>
-              <SelectItem value='Work'>Work</SelectItem>
-              <SelectItem value='Personal'>Personal</SelectItem>
-              <SelectItem value='Study'>Study</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button type='submit'>➕ Add</Button>
-        </form>
-
-        <Input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder='🔍 Search tasks'
-        />
-
-        <div className='flex justify-between items-center'>
-          <div className='flex gap-2'>
-            {(['all', 'completed', 'incomplete'] as Filter[]).map((f) => (
-              <Button
-                key={f}
-                variant={filter === f ? 'default' : 'outline'}
-                onClick={() => setFilter(f)}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </Button>
-            ))}
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="Work">Work</SelectItem>
+                <SelectItem value="Personal">Personal</SelectItem>
+                <SelectItem value="Study">Study</SelectItem>
+                <SelectItem value="General">General</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </Card>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className='w-[150px]'>
-              <SelectValue placeholder='Category' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All</SelectItem>
-              <SelectItem value='Work'>Work</SelectItem>
-              <SelectItem value='Personal'>Personal</SelectItem>
-              <SelectItem value='Study'>Study</SelectItem>
-              <SelectItem value='General'>General</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className='space-y-3'>
+        <div className="space-y-3">
           {filteredTasks.map((task) => (
-            <Card key={task.id} className='p-4 flex justify-between items-center'>
-              <div className='flex items-center gap-3'>
+            <Card key={task.id} className="p-4 flex justify-between items-center">
+              <div className="flex items-center gap-3">
                 <Switch checked={task.completed} onCheckedChange={() => handleToggleComplete(task)} />
                 {editTaskId === task.id ? (
                   <Input
@@ -190,19 +191,19 @@ export default function DashboardPage() {
                   <span className={task.completed ? 'line-through text-muted-foreground' : ''}>{task.title}</span>
                 )}
               </div>
-              <div className='flex gap-2'>
+              <div className="flex gap-2">
                 {editTaskId === task.id ? (
                   <>
-                    <Button variant='outline' onClick={() => handleConfirmEdit(task.id)}>✅ Save</Button>
-                    <Button variant='ghost' onClick={handleCancelEdit}>✖ Cancel</Button>
+                    <Button variant="outline" onClick={() => handleConfirmEdit(task.id)}>✅ Save</Button>
+                    <Button variant="ghost" onClick={handleCancelEdit}>✖ Cancel</Button>
                   </>
                 ) : (
-                  <Button variant='outline' onClick={() => {
+                  <Button variant="outline" onClick={() => {
                     setEditTaskId(task.id);
                     setEditTitle(task.title);
                   }}>📝 Edit</Button>
                 )}
-                <Button variant='destructive' onClick={() => handleDeleteTask(task.id)}>🗑 Delete</Button>
+                <Button variant="destructive" onClick={() => handleDeleteTask(task.id)}>🗑 Delete</Button>
               </div>
             </Card>
           ))}
