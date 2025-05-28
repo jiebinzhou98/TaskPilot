@@ -52,4 +52,17 @@ export const TaskService = {
   clear() {
     localStorage.removeItem(storageKey)
   },
+
+  clearOldCompleted(days: number = 7) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const tasks = this.load().filter(task => {
+        const createdAt = new Date(task.createdAt);
+        return !(task.completed && createdAt < cutoff);
+    });
+    this.save(tasks);
+  }
 }
+
+

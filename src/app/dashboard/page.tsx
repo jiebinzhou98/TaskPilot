@@ -25,6 +25,7 @@ export default function DashboardPage() {
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
+        TaskService.clearOldCompleted(7);
         const stored = TaskService.load();
         setTasks(stored);
     }, []);
@@ -118,7 +119,7 @@ export default function DashboardPage() {
                                 <DialogHeader>
                                     <DialogTitle>Add New Task</DialogTitle>
                                 </DialogHeader>
-                                    
+
 
                                 <form onSubmit={(e) => {
                                     e.preventDefault();
@@ -186,6 +187,43 @@ export default function DashboardPage() {
                             className="flex-1 px-3 py-2 rounded border border-gray-300 bg-white text-sm text-gray-800 shadow-sm"
                         />
                     </div>
+
+                    {/* 📂 分类筛选 */}
+                    <div className="flex gap-2 mb-4">
+                        {/* All */}
+                        <Button
+                            onClick={() => setFilter('all')}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'all'
+                                    ? 'bg-[#E0E0E0] text-[#616161] shadow-md'
+                                    : 'bg-white text-[#616161] border border-[#E0E0E0] hover:bg-[#BDBDBD] hover:shadow-md'
+                                }`}
+                        >
+                            All
+                        </Button>
+
+                        {/* Completed */}
+                        <Button
+                            onClick={() => setFilter('completed')}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'completed'
+                                    ? 'bg-[#66BB6A] text-white shadow-md'
+                                    : 'bg-white text-[#66BB6A] border border-[#66BB6A] hover:bg-[#4CAF50] hover:text-white hover:shadow-md'
+                                }`}
+                        >
+                            Completed
+                        </Button>
+
+                        {/* Incomplete */}
+                        <Button
+                            onClick={() => setFilter('incomplete')}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'incomplete'
+                                    ? 'bg-[#FFA726] text-white shadow-md'
+                                    : 'bg-white text-[#FFA726] border border-[#FFA726] hover:bg-[#FB8C00] hover:text-white hover:shadow-md'
+                                }`}
+                        >
+                            Incomplete
+                        </Button>
+                    </div>
+
 
                     {/* 此处可继续保留原搜索、筛选、任务列表逻辑 */}
                     {filteredTasks.length === 0 ? (
@@ -261,6 +299,18 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     )}
+                    <div className='pt-4 border-t text-center'>
+                        <Button
+                            onClick={() => {
+                                TaskService.clearOldCompleted(7);
+                                setTasks(TaskService.load());
+                            }}
+                            variant="ghost"
+                            className='bg-[#FF9100] text-white hover:bg-[#e67f00] font-medium px-4 py-2 rounded transition'
+                        >
+                            Clear old completed tasks older than 7 days
+                        </Button>
+                    </div>
                 </Card>
             </div>
         </main>
