@@ -204,6 +204,76 @@ export default function DashboardPage() {
                         </Select>
                     </div>
                 </Card>
+
+                {filteredTasks.length === 0 ? (
+                    <p className="text-gray-500 text-center mt-4">No tasks found.</p>
+                ) : (
+                    <div className="space-y-3">
+                        {filteredTasks.map((task) => (
+                            <Card key={task.id} className="p-4 border border-gray-300">
+                                <div className="flex items-center justify-between gap-3">
+                                    {/* 左侧: checkbox + 文字 or 编辑框 */}
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <input
+                                            type="checkbox"
+                                            checked={task.completed}
+                                            onChange={() => handleToggleComplete(task)}
+                                            className="w-5 h-5 accent-green-500"
+                                        />
+
+                                        {editTaskId === task.id ? (
+                                            <Input
+                                                value={editTitle}
+                                                onChange={(e) => setEditTitle(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleConfirmEdit(task.id);
+                                                    if (e.key === 'Escape') handleCancelEdit();
+                                                }}
+                                                autoFocus
+                                                className="w-full border border-gray-400 bg-white text-gray-800 placeholder:text-gray-500 shadow-sm"
+                                            />
+                                        ) : (
+                                            <span
+                                                className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'
+                                                    }`}
+                                            >
+                                                {task.title}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* 右侧: 编辑和删除按钮 */}
+                                    <div className="flex gap-2 flex-shrink-0">
+                                        {editTaskId === task.id ? (
+                                            <>
+                                                <Button variant="outline" size="sm" onClick={() => handleConfirmEdit(task.id)}>
+                                                    Save
+                                                </Button>
+                                                <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
+                                                    Cancel
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Button variant="outline" size="sm" onClick={() => {
+                                                    setEditTaskId(task.id);
+                                                    setEditTitle(task.title);
+                                                }} className='border border-gray-400 text-gray-800 hover:bg-gray-200 hover:text-black'>
+                                                    Edit
+                                                </Button>
+                                                <Button variant="destructive" size="sm" onClick={() => handleDeleteTask(task.id)}>
+                                                    Delete
+                                                </Button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+
+
             </div>
         </main>
     );
