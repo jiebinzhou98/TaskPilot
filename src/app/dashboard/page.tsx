@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, use } from 'react';
 import StatsChart from './StatsChart';
 import { TaskService, Task } from '@/lib/taskService';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { CalendarIcon, ListTodo, LayoutDashboard, Search } from 'lucide-react';
+import { CalendarIcon, LayoutDashboard, Minus, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 
 export default function DashboardPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,10 +21,8 @@ export default function DashboardPage() {
     const [priorityInput, setPriorityInput] = useState('Medium');
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
-    const [showModal, setShowModal] = useState(false);
-
-    type Filter = 'all' | 'completed' | 'incomplete';
-    const [filter, setFilter] = useState<Filter>('all');
+    const [filter, setFilter] = useState<'all' | 'completed' | 'incomplete'>('all');
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         const stored = TaskService.load();
@@ -101,111 +99,95 @@ export default function DashboardPage() {
         <main className="min-h-screen p-6 bg-gradient-to-br from-[#E8F9EF] to-[#DFF5E3] text-[--foreground]">
             <div className="max-w-xl mx-auto space-y-6">
                 <Card className="p-6 rounded-2xl shadow border border-[#e0e0e0]">
-                    <h1 className="text-2xl font-bold flex items-center gap-2 mb-4">
-                        <LayoutDashboard className="text-orange-400 w-6 h-6" /> TaskPilot Dashboard
-                    </h1>
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-2xl font-bold flex items-center gap-2">
+                            <LayoutDashboard className="text-orange-400 w-6 h-6" /> TaskPilot Dashboard
+                        </h1>
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="bg-[#333333] hover:bg-[#1f1f1f] text-white border border-[#1f1f1f] shadow-md hover:shadow-lg transition rounded-full p-2"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                </Button>
+                            </DialogTrigger>
 
-                    <form onSubmit={handleAddTask} className="space-y-3">
-                        <Input
-                            type="text"
-                            value={taskInput}
-                            placeholder="Enter a task"
-                            onChange={(e) => setTaskInput(e.target.value)}
-                            className="w-full border border-gray-300 bg-white placeholder:text-gray-500"
-                        />
+                            <DialogContent className="sm:max-w-md bg-[#f8f9fa] text-gray-900 rounded-xl shadow-lg border border-gray-300">
+                                <DialogHeader>
+                                    <DialogTitle>Add New Task</DialogTitle>
+                                </DialogHeader>
+                                    
 
-                        <div className="flex flex-col md:flex-row justify-between gap-3 items-start md:items-center">
-                            <div className="relative w-full md:max-w-sm">
-                                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                                <input
-                                    type="date"
-                                    value={dueDateInput}
-                                    onChange={(e) => setDueDateInput(e.target.value)}
-                                    className="w-full h-[40px] rounded-md border border-gray-300 bg-white text-gray-800 pl-10 pr-2"
-                                />
-                            </div>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (!taskInput.trim()) return;
 
-                            <div className="flex gap-3 w-full md:w-auto">
-                                <Select value={priorityInput} onValueChange={setPriorityInput}>
-                                    <SelectTrigger className="border border-gray-300 bg-white text-gray-800 w-[120px]">
-                                        <SelectValue placeholder="Priority" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="High">High</SelectItem>
-                                        <SelectItem value="Medium">Medium</SelectItem>
-                                        <SelectItem value="Low">Low</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    const newTask: Task = {
+                                        id: crypto.randomUUID(),
+                                        title: taskInput.trim(),
+                                        completed: false,
+                                        category: categoryInput,
+                                        due_date: dueDateInput || null,
+                                        priority: priorityInput as Task['priority'],
+                                        createdAt: new Date().toISOString(),
+                                    };
 
-                                <Select value={categoryInput} onValueChange={setCategoryInput}>
-                                    <SelectTrigger className="border border-gray-300 bg-white text-gray-800 w-[120px]">
-                                        <SelectValue placeholder="Category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="General">General</SelectItem>
-                                        <SelectItem value="Work">Work</SelectItem>
-                                        <SelectItem value="Personal">Personal</SelectItem>
-                                        <SelectItem value="Study">Study</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                                    saveTasks([newTask, ...tasks]);
+                                    setTaskInput('');
+                                    setOpen(false);
+                                }} className="space-y-4">
+                                    <Input
+                                        type="text"
+                                        value={taskInput}
+                                        placeholder="Enter a task"
+                                        onChange={(e) => setTaskInput(e.target.value)}
+                                        className="w-full border border-gray-300 bg-white placeholder:text-gray-500"
+                                    />
 
-                        <div>
-                            <Button type="submit" className="w-full mt-2">Add Task</Button>
-                        </div>
-                    </form>
+                                    <div className="flex flex-col md:flex-row justify-between gap-3 items-start md:items-center">
+                                        <div className="relative w-full md:max-w-sm">
+                                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+                                            <input
+                                                type="date"
+                                                value={dueDateInput}
+                                                onChange={(e) => setDueDateInput(e.target.value)}
+                                                className="w-full h-[40px] rounded-md border border-gray-300 bg-white text-gray-800 pl-10 pr-2"
+                                            />
+                                        </div>
 
-                </Card>
+                                        <Select value={priorityInput} onValueChange={setPriorityInput}>
+                                            <SelectTrigger className="border border-gray-300 bg-white text-gray-800 w-[120px]">
+                                                <SelectValue placeholder="Priority" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="High">High</SelectItem>
+                                                <SelectItem value="Medium">Medium</SelectItem>
+                                                <SelectItem value="Low">Low</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                <Card className="p-4 border border-[#e0e0e0]">
+                                    <Button type="submit" className="w-full mt-2">Add Task</Button>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+
+                    </div>
+
+                    {/* 🔍 搜索栏 - 放置在任务列表前面 */}
                     <div className="flex items-center gap-2 mb-4">
-                        <Search className="text-gray-400 w-5 h-5" />
-                        <Input
+                        <input
+                            type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search tasks..."
-                            className="border border-gray-300 bg-white"
+                            className="flex-1 px-3 py-2 rounded border border-gray-300 bg-white text-sm text-gray-800 shadow-sm"
                         />
                     </div>
 
-                    <div className="flex justify-between items-center gap-2 flex-wrap">
-                        <div className="flex gap-2">
-                            {(['all', 'completed', 'incomplete'] as Filter[]).map((f) => (
-                                <Button
-                                    key={f}
-                                    variant={filter === f ? 'default' : 'outline'}
-                                    onClick={() => setFilter(f)}
-                                    className={
-                                        filter !== f
-                                            ? 'bg-white border text-gray-600 hover:bg-gray-200 hover:text-black rounded-lg shadow-sm'
-                                            : 'rounded-lg shadow-sm'
-                                    }
-                                >
-                                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                                </Button>
-
-                            ))}
-                        </div>
-
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                            <SelectTrigger className="border border-gray-300 bg-white text-gray-800 rounded-md shadow-sm px-3 h-[40px]" >
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-
-
-                            <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="Work">Work</SelectItem>
-                                <SelectItem value="Personal">Personal</SelectItem>
-                                <SelectItem value="Study">Study</SelectItem>
-                                <SelectItem value="General">General</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </Card>
-
-                <Card className="p-4 border border-gray-300">
+                    {/* 此处可继续保留原搜索、筛选、任务列表逻辑 */}
                     {filteredTasks.length === 0 ? (
                         <p className="text-gray-500 text-center mt-4">No tasks found.</p>
                     ) : (
@@ -228,7 +210,6 @@ export default function DashboardPage() {
                                                 onChange={() => handleToggleComplete(task)}
                                                 className="w-5 h-5 accent-green-500"
                                             />
-
                                             {editTaskId === task.id ? (
                                                 <Input
                                                     value={editTitle}
@@ -241,9 +222,7 @@ export default function DashboardPage() {
                                                     className="w-full border border-gray-400 bg-white text-gray-800 placeholder:text-gray-500 shadow-sm"
                                                 />
                                             ) : (
-                                                <span
-                                                    className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}
-                                                >
+                                                <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                                                     {task.title}
                                                 </span>
                                             )}
