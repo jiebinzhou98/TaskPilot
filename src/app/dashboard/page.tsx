@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { CalendarIcon, LayoutDashboard, Minus, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreHorizontal } from 'lucide-react';
 
 export default function DashboardPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -95,6 +97,34 @@ export default function DashboardPage() {
             if (!b.due_date) return -1;
             return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
         });
+
+
+const isOverdue = (dueDate: string | null): boolean => {
+  if (!dueDate) return false;
+  const now = new Date();
+  const due = new Date(dueDate);
+
+  return (
+    due.getFullYear() < now.getFullYear() ||
+    (due.getFullYear() === now.getFullYear() && due.getMonth() < now.getMonth()) ||
+    (due.getFullYear() === now.getFullYear() &&
+     due.getMonth() === now.getMonth() &&
+     due.getDate() < now.getDate())
+  );
+};
+
+const isDueToday = (dueDate: string | null): boolean => {
+  if (!dueDate) return false;
+  const now = new Date();
+  const due = new Date(dueDate);
+
+  return (
+    due.getFullYear() === now.getFullYear() &&
+    due.getMonth() === now.getMonth() &&
+    due.getDate() === now.getDate()
+  );
+};
+
 
     return (
         <main className="min-h-screen p-6 bg-gradient-to-br from-[#E8F9EF] to-[#DFF5E3] text-[--foreground]">
@@ -194,8 +224,8 @@ export default function DashboardPage() {
                         <Button
                             onClick={() => setFilter('all')}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'all'
-                                    ? 'bg-[#E0E0E0] text-[#616161] shadow-md'
-                                    : 'bg-white text-[#616161] border border-[#E0E0E0] hover:bg-[#BDBDBD] hover:shadow-md'
+                                ? 'bg-[#E0E0E0] text-[#616161] shadow-md'
+                                : 'bg-white text-[#616161] border border-[#E0E0E0] hover:bg-[#BDBDBD] hover:shadow-md'
                                 }`}
                         >
                             All
@@ -205,8 +235,8 @@ export default function DashboardPage() {
                         <Button
                             onClick={() => setFilter('completed')}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'completed'
-                                    ? 'bg-[#66BB6A] text-white shadow-md'
-                                    : 'bg-white text-[#66BB6A] border border-[#66BB6A] hover:bg-[#4CAF50] hover:text-white hover:shadow-md'
+                                ? 'bg-[#66BB6A] text-white shadow-md'
+                                : 'bg-white text-[#66BB6A] border border-[#66BB6A] hover:bg-[#4CAF50] hover:text-white hover:shadow-md'
                                 }`}
                         >
                             Completed
@@ -216,8 +246,8 @@ export default function DashboardPage() {
                         <Button
                             onClick={() => setFilter('incomplete')}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filter === 'incomplete'
-                                    ? 'bg-[#FFA726] text-white shadow-md'
-                                    : 'bg-white text-[#FFA726] border border-[#FFA726] hover:bg-[#FB8C00] hover:text-white hover:shadow-md'
+                                ? 'bg-[#FFA726] text-white shadow-md'
+                                : 'bg-white text-[#FFA726] border border-[#FFA726] hover:bg-[#FB8C00] hover:text-white hover:shadow-md'
                                 }`}
                         >
                             Incomplete
@@ -239,6 +269,22 @@ export default function DashboardPage() {
                                             day: 'numeric',
                                         })}
                                     </p>
+                                    <p className="text-xs text-gray-500 mb-1">
+                                        📅 Due: {task.due_date || 'N/A'} &nbsp; | &nbsp;
+                                        🔥 Priority:
+                                        <span
+                                            className={
+                                                task.priority === 'High'
+                                                    ? 'text-red-500 font-semibold'
+                                                    : task.priority === 'Medium'
+                                                        ? 'text-yellow-600 font-medium'
+                                                        : 'text-green-600 font-medium'
+                                            }
+                                        >
+                                            {task.priority}
+                                        </span>
+                                    </p>
+
 
                                     <div className="flex items-center justify-between gap-3">
                                         <div className="flex items-center gap-3 flex-1">
@@ -260,40 +306,68 @@ export default function DashboardPage() {
                                                     className="w-full border border-gray-400 bg-white text-gray-800 placeholder:text-gray-500 shadow-sm"
                                                 />
                                             ) : (
-                                                <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                                                    {task.title}
-                                                </span>
+
+                          <div className="flex items-center gap-2">
+  <span
+    className={`text-sm ${task.completed
+      ? 'line-through text-gray-400'
+      : isOverdue(task.due_date)
+        ? 'text-red-600 font-semibold'
+        : 'text-gray-800'
+    }`}
+  >
+    {task.title}
+  </span>
+
+  {!task.completed && isOverdue(task.due_date) && (
+    <span className="text-xs text-red-500 font-medium">⚠️ Overdue</span>
+  )}
+
+  {!task.completed && isDueToday(task.due_date) && (
+    <span className="text-xs text-yellow-600 font-medium">⚡ Due Today</span>
+  )}
+</div>
+
+
                                             )}
                                         </div>
-                                        <div className="flex gap-2 flex-shrink-0">
+                                        <div className="flex-shrink-0">
                                             {editTaskId === task.id ? (
-                                                <>
+                                                <div className="flex gap-2">
                                                     <Button variant="outline" size="sm" onClick={() => handleConfirmEdit(task.id)}>
                                                         Save
                                                     </Button>
                                                     <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
                                                         Cancel
                                                     </Button>
-                                                </>
+                                                </div>
                                             ) : (
-                                                <>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            setEditTaskId(task.id);
-                                                            setEditTitle(task.title);
-                                                        }}
-                                                        className="border border-gray-400 text-gray-800 hover:bg-gray-200 hover:text-black"
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteTask(task.id)}>
-                                                        Delete
-                                                    </Button>
-                                                </>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                            <MoreHorizontal className="w-5 h-5 text-gray-600" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent side="bottom" align="end" className="w-28">
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setEditTaskId(task.id);
+                                                                setEditTitle(task.title);
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleDeleteTask(task.id)}
+                                                            className="text-red-500 hover:text-red-600"
+                                                        >
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             )}
                                         </div>
+
                                     </div>
                                 </div>
                             ))}
