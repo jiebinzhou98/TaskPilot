@@ -12,6 +12,24 @@ import { CalendarIcon, LayoutDashboard, Minus, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
+import localFont from 'next/font/local';
+
+
+const wdXLLubrifont = localFont({
+    src: '../../fonts/wdxl-regular.otf',
+})
+
+const ExileFont = localFont({
+    src: '../../fonts/Exile-Regular.ttf',
+})
+
+const playPenFont = localFont({
+    src: '../../fonts/PlaypenSansDeva-VariableFont_wght.ttf'
+})
+
+const shadowFont = localFont({
+    src: '../../fonts/ShadowsIntoLight-Regular.ttf'
+})
 
 export default function DashboardPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -99,31 +117,31 @@ export default function DashboardPage() {
         });
 
 
-const isOverdue = (dueDate: string | null): boolean => {
-  if (!dueDate) return false;
-  const now = new Date();
-  const due = new Date(dueDate);
+    const isOverdue = (dueDate: string | null): boolean => {
+        if (!dueDate) return false;
+        const now = new Date();
+        const due = new Date(dueDate);
 
-  return (
-    due.getFullYear() < now.getFullYear() ||
-    (due.getFullYear() === now.getFullYear() && due.getMonth() < now.getMonth()) ||
-    (due.getFullYear() === now.getFullYear() &&
-     due.getMonth() === now.getMonth() &&
-     due.getDate() < now.getDate())
-  );
-};
+        return (
+            due.getFullYear() < now.getFullYear() ||
+            (due.getFullYear() === now.getFullYear() && due.getMonth() < now.getMonth()) ||
+            (due.getFullYear() === now.getFullYear() &&
+                due.getMonth() === now.getMonth() &&
+                due.getDate() < now.getDate())
+        );
+    };
 
-const isDueToday = (dueDate: string | null): boolean => {
-  if (!dueDate) return false;
-  const now = new Date();
-  const due = new Date(dueDate);
+    const isDueToday = (dueDate: string | null): boolean => {
+        if (!dueDate) return false;
+        const now = new Date();
+        const due = new Date(dueDate);
 
-  return (
-    due.getFullYear() === now.getFullYear() &&
-    due.getMonth() === now.getMonth() &&
-    due.getDate() === now.getDate()
-  );
-};
+        return (
+            due.getFullYear() === now.getFullYear() &&
+            due.getMonth() === now.getMonth() &&
+            due.getDate() === now.getDate()
+        );
+    };
 
 
     return (
@@ -131,7 +149,7 @@ const isDueToday = (dueDate: string | null): boolean => {
             <div className="max-w-xl mx-auto space-y-6">
                 <Card className="p-6 rounded-2xl shadow border border-[#e0e0e0]">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-bold flex items-center gap-2">
+                        <h1 className={`text-2xl font-bold flex items-center gap-2 ${wdXLLubrifont.className}`}>
                             <LayoutDashboard className="text-orange-400 w-6 h-6" /> TaskPilot Dashboard
                         </h1>
                         <Dialog open={open} onOpenChange={setOpen}>
@@ -307,26 +325,26 @@ const isDueToday = (dueDate: string | null): boolean => {
                                                 />
                                             ) : (
 
-                          <div className="flex items-center gap-2">
-  <span
-    className={`text-sm ${task.completed
-      ? 'line-through text-gray-400'
-      : isOverdue(task.due_date)
-        ? 'text-red-600 font-semibold'
-        : 'text-gray-800'
-    }`}
-  >
-    {task.title}
-  </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span
+                                                        className={`text-sm ${playPenFont.className} ${task.completed
+                                                            ? 'line-through text-gray-400'
+                                                            : isOverdue(task.due_date)
+                                                                ? 'text-red-600 font-semibold'
+                                                                : 'text-gray-800'
+                                                            }`}
+                                                    >
+                                                        {task.title}
+                                                    </span>
 
-  {!task.completed && isOverdue(task.due_date) && (
-    <span className="text-xs text-red-500 font-medium">⚠️ Overdue</span>
-  )}
+                                                    {!task.completed && isOverdue(task.due_date) && (
+                                                        <span className={`text-xs text-red-500 font-medium ${wdXLLubrifont.className}`}>⚠️ Overdue</span>
+                                                    )}
 
-  {!task.completed && isDueToday(task.due_date) && (
-    <span className="text-xs text-yellow-600 font-medium">⚡ Due Today</span>
-  )}
-</div>
+                                                    {!task.completed && isDueToday(task.due_date) && (
+                                                        <span className={`text-xs text-yellow-600 font-medium ${wdXLLubrifont.className}`}>⚡ Due Today</span>
+                                                    )}
+                                                </div>
 
 
                                             )}
