@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,10 +25,32 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <link rel="manifest" href="/manifest.json" />
+      <head>
+        <meta name="theme-color" content="#00b894" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/logo_192x192.png" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+
+        {/* ✅ 正确注册方式 */}
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(
+                  (reg) => {
+                    console.log('✅ SW registered: ', reg);
+                  },
+                  (err) => {
+                    console.error('❌ SW registration failed: ', err);
+                  }
+                );
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );
