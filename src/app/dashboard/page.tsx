@@ -196,13 +196,14 @@ export default function DashboardPage() {
                                     />
 
                                     <div className="grid gap-4 sm:grid-cols-2">
-                                        <div className="relative">
+                                        <div className="relative w-full">
                                             <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
                                             <input
                                                 type="date"
                                                 value={dueDateInput}
                                                 onChange={(e) => setDueDateInput(e.target.value)}
-                                                className="w-full h-[40px] rounded-md border border-gray-300 bg-white text-gray-800 pl-10 pr-2"
+                                                className="w-full h-[40px] rounded-md border border-gray-300 bg-white text-gray-800 pl-10 pr-2 appearance-none text-sm leading-none"
+                                                style={{ WebkitAppearance: 'none' }}
                                             />
                                         </div>
 
