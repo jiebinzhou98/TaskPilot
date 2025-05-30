@@ -195,8 +195,8 @@ export default function DashboardPage() {
                                         className="w-full border border-gray-300 bg-white placeholder:text-gray-500"
                                     />
 
-                                    <div className="flex flex-col md:flex-row justify-between gap-3 items-start md:items-center">
-                                        <div className="relative w-full md:max-w-sm">
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <div className="relative">
                                             <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
                                             <input
                                                 type="date"
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                                         </div>
 
                                         <Select value={priorityInput} onValueChange={setPriorityInput}>
-                                            <SelectTrigger className="border border-gray-300 bg-white text-gray-800 w-[120px]">
+                                            <SelectTrigger className="w-full h-[40px] border border-gray-300 bg-white text-gray-800">
                                                 <SelectValue placeholder="Priority" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -391,14 +391,14 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     )}
-                    <div className='pt-4 border-t text-center'>
+                    <div className='pt-6 mt-6 border-t text-center'>
                         <Button
                             onClick={() => {
                                 TaskService.clearOldCompleted(7);
                                 setTasks(TaskService.load());
                             }}
                             variant="ghost"
-                            className='bg-[#FF9100] text-white hover:bg-[#e67f00] font-medium px-4 py-2 rounded transition'
+                            className={`bg-[#FF9100] text-white hover:bg-[#e67f00] ${playPenFont.className} px-4 py-2 rounded transition w-full sm:w-auto`}
                         >
                             Clear old completed tasks older than 7 days
                         </Button>
