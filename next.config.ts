@@ -66,5 +66,11 @@ module.exports = withPWA({
   skipWaiting: true,
   disable: false,
   buildExcludes: [/app-build-manifest\.json$/],
+  publicExcludes: [],
   runtimeCaching,
+
+  fallbacks:{
+    document: '/offline.html',
+  },
+
 })(nextConfig)
