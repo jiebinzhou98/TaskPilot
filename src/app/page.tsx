@@ -7,9 +7,9 @@ const wdXLLubrifont = localFont({
   src: "../fonts/wdxl-regular.otf",
 })
 
-const exileFont = localFont({
-  src: "../fonts/Exile-Regular.ttf",
-});
+const playPenFont = localFont({
+    src: '../fonts/PlaypenSansDeva-VariableFont_wght.ttf'
+})
 
 export default function Home() {
   const router = useRouter();
@@ -18,8 +18,8 @@ export default function Home() {
     <div>
       <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-blue-100">
         <div className="bg-white p-8 rounded-2xl shadow-md max-w-md w-full text-center animate-fade-in">
-          <h1 className={`text-4xl ${exileFont.className} text-gray-800 mb-3`}>TaskPilot</h1>
-          <p className="text-gray-600 text-sm mb-6">Make plans. Get things done.</p>
+          <h1 className={`text-4xl ${wdXLLubrifont.className} text-gray-800 mb-3`}>TaskPilot</h1>
+          <p className={`text-gray-600 text-sm mb-6 ${playPenFont.className}`}>Make plans. Get things done.</p>
           <button onClick={() => router.push('/dashboard')}
             className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded transition">
             🚀Start Now
