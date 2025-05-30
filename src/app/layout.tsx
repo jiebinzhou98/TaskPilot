@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import LoadingScreen from "@/components/ui/Loading";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +34,10 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        
+        <Suspense fallback={<LoadingScreen/>}>
+          {children}
+        </Suspense>
 
         {/* ✅ 正确注册方式 */}
         <Script id="register-sw" strategy="afterInteractive">
