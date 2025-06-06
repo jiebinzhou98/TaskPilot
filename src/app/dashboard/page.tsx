@@ -123,20 +123,28 @@ export default function DashboardPage() {
             return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
         });
 
-
     const isOverdue = (dueDate: string | null): boolean => {
         if (!dueDate) return false;
         const now = new Date();
         const due = new Date(dueDate);
 
-        return (
-            due.getFullYear() < now.getFullYear() ||
-            (due.getFullYear() === now.getFullYear() && due.getMonth() < now.getMonth()) ||
-            (due.getFullYear() === now.getFullYear() &&
-                due.getMonth() === now.getMonth() &&
-                due.getDate() < now.getDate())
-        );
+        return due.getTime() < now.getTime();
     };
+
+
+    // const isOverdue = (dueDate: string | null): boolean => {
+    //     if (!dueDate) return false;
+    //     const now = new Date();
+    //     const due = new Date(dueDate);
+
+    //     return (
+    //         due.getFullYear() < now.getFullYear() ||
+    //         (due.getFullYear() === now.getFullYear() && due.getMonth() < now.getMonth()) ||
+    //         (due.getFullYear() === now.getFullYear() &&
+    //             due.getMonth() === now.getMonth() &&
+    //             due.getDate() < now.getDate())
+    //     );
+    // };
 
     const isDueToday = (dueDate: string | null): boolean => {
         if (!dueDate) return false;
@@ -180,12 +188,22 @@ export default function DashboardPage() {
                                     e.preventDefault();
                                     if (!taskInput.trim()) return;
 
+                                    const rawDueDate = dueDateInput
+                                        ? (() => {
+                                            const [year, month, day] = dueDateInput.split('-').map(Number);
+                                            return new Date(year, month - 1, day, 23, 59, 59);
+                                        })()
+                                        : null;
+
+                                    console.log('🧠 dueDateInput =', dueDateInput);
+                                    console.log('📌 new Date parsed =', rawDueDate?.toString());
+
                                     const newTask: Task = {
                                         id: crypto.randomUUID(),
                                         title: taskInput.trim(),
                                         completed: false,
                                         category: categoryInput,
-                                        due_date: dueDateInput || null,
+                                        due_date: rawDueDate?.toString() || null,
                                         priority: priorityInput as Task['priority'],
                                         createdAt: new Date().toISOString(),
                                     };
@@ -296,7 +314,16 @@ export default function DashboardPage() {
                                         })}
                                     </p>
                                     <p className="text-xs text-gray-500 mb-1">
-                                        📅 Due: {task.due_date || 'N/A'} &nbsp; | &nbsp;
+                                        📅 Due: {task.due_date
+                                            ? new Date(task.due_date).toLocaleString(undefined, {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: 'numeric',
+                                                minute: '2-digit',
+                                                hour12: true,
+                                            })
+                                            : 'N/A'}
                                         🔥 Priority:
                                         <span
                                             className={
