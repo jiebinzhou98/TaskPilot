@@ -64,7 +64,14 @@ export default function DashboardPage() {
             title: taskInput.trim(),
             completed: false,
             category: categoryInput,
-            due_date: dueDateInput || null,
+            due_date: dueDateInput
+                ? new Date(
+                    new Date(dueDateInput).getFullYear(),
+                    new Date(dueDateInput).getMonth(),
+                    new Date(dueDateInput).getDate(),
+                    23, 59, 59
+                ).toISOString()
+                : null,
             priority: priorityInput as Task['priority'],
             createdAt: new Date().toISOString(),
         };
